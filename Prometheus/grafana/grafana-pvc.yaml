@@ -1,9 +1,8 @@
 kind: PersistentVolumeClaim
+apiVersion: v1
 metadata:
   name: grafana-pvc
   namespace: monitoring
-  annotations:
-    volume.beta.kubernetes.io/storage-class: "nfs-storage"
 spec:
   accessModes:
     - ReadWriteMany
