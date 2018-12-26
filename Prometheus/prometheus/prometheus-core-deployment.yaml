@@ -50,7 +50,7 @@ spec:
           name: prometheus-rules
       - name: prometheus-data
         persistentVolumeClaim:
-          claimName: prometheus-storage
+          claimName: prometheus-pvc 
       - name: sys-time
         hostPath:
           path: /etc/localtime

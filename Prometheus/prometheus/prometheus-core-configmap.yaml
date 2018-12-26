@@ -144,21 +144,6 @@ data:
         static_configs:
         - targets: ['172.20.0.97:2379', '172.20.0.112:2379', '172.20.0.143:2379', '172.20.0.144:2379', '172.20.0.150:2379'] #替换成etcd地址
 
-      - job_name: 'rabbitmq-exporter' 
-        static_configs:
-        - targets: ['rabbitmq-exporter:9099']
-
-      - job_name: 'mongodb-exporter' 
-        static_configs:
-        - targets: ['mongodb-exporter:9104']
-
-      - job_name: 'redis-exporter' 
-        static_configs:
-        - targets: ['redis-exporter:9121']
-
-      - job_name: 'mysql-exporter' 
-        static_configs:
-        - targets: ['mysql-exporter:9104']
 
 kind: ConfigMap
 metadata:

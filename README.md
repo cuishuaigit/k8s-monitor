@@ -3,23 +3,54 @@
 ### 背景
 
 ```
-最近在做K8S的私有云项目建设，集群搭建功能基本完善，但是监控系统一直空缺，主要包括资源和日志两部分。看到部分私有云厂商使用了Prometheus来做资源的监控，包括网络、CPU、Memory等资源，所以私下也搭建了Prometheus集成K8S。
+k8s上线后的事情
+
 ```
 
 ### 前置条件
 
 ```
-K8S集群搭建完成，服务均正常运行
+K8S集群搭建完成，服务均正常运行，整个集群都是使用ubuntu16.04(手动升级到了最新的内核)
+```
+### 版本说明
+
+```
+k8s-1.13.1
 ```
 
 ### 一、Prometheus 
 
-#### 1.安装Prometheus 
+#### 1.搭建nfs服务动态提供持久化存储 
 
 ```
-1.创建命名空间monitoring
-kubectl create -f namespace.yaml
-2.创建权限
+1.安装nfs 
+sudo apt-get install -y nfs-kernel-server
+sudo apt-get install -y nfs-common 
+sudo vi /etc/exports 
+/data/opv *(rw,sync,no_root_squash,no_subtree_check)
+注意将*换成自己的ip段，纯内网的话也可以用*，代替任意
+sudo /etc/init.d/rpcbind restart 
+sudo /etc/init.d/nfs-kernel-server restart 
+sudo systemctl enable rpcbind nfs-kernel-server 
+
+客户端挂在使用
+sudo apt-get install -y nfs-common
+mount -t nfs ku13-1:/data/opv  /data/opv -o proto=tcp -o nolock
+为了方便使用将上面的mount命令直接放到.bashrc里面 
+2.创建namesapce
+kubectl creaet -f nfs/monitoring-namepsace.yaml 
+3.为nfs创建rbac 
+kubectl create -f nfs/rbac.yaml 
+4.创建deployment
+kubectl create -f nfs/nfs-deployment.yaml 
+5.创建storageclass
+kubectl create -f nfs/storageClass.yaml 
+```
+
+#### 2.安装Prometheus 
+
+```
+1.创建权限
 kubectl create -f rbac.yaml
 2.创建 node-exporter
 kubectl create -f prometheus-node-exporter-daemonset.yaml
@@ -37,7 +68,7 @@ kubectl create -f prometheus-core-service.yaml
 kubectl create -f prometheus-rules-configmap.yaml
 ```
 
-#### 2.安装Grafana
+#### 3.安装Grafana
 
 ```
 1.安装grafana service
