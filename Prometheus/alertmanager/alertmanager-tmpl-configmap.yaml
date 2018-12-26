@@ -1,0 +1,17 @@
+apiVersion: v1
+data:
+  email.tmpl: |
+    {{ define "alert.html" }}
+    <table>
+        <tr><td>报警名</td><td>开始时间</td></tr>
+        {{ range $i, $alert := .Alerts }}
+            <tr><td>{{ index $alert.Labels "alertname" }}</td><td>{{ $alert.StartsAt }}</td></tr>
+        {{ end }}
+    </table>
+    {{ end }}
+
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: alertmanager-tmpl
+  namespace: monitoring

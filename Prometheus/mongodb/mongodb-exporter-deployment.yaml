@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mongodb-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mongodb-exporter
+    spec:
+      serviceAccountName: mongodb-exporter
+      containers:
+      - name: mongodb-exporter
+        image: registry.cn-hangzhou.aliyuncs.com/nevermore/mongodb-exporter:v1
+        ports:
+        - containerPort: 9001
+        env:
+          - name: MONGODB_URL
+            value: "mongodb://nevermore:nevermore@config-rc-0.config-svc.default:27017"               #修改成mongodb地址
+        volumeMounts:
+        - name: sys-time
+          mountPath: /etc/localtime
+      volumes:
+        - name: sys-time
+          hostPath:
+            path: /etc/localtime

@@ -1,0 +1,84 @@
+apiVersion: v1
+data:
+  cpu-usage.rules: |
+    groups:
+    - name: NodeCPUUsage
+      rules:
+      - alert: NodeCPUUsage
+        expr: (100 - (avg by (instance) (irate(node_cpu{component="node-exporter",mode="idle"}[5m])) * 100)) > 75
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{$labels.instance}}: High CPU usage detected"
+          description: "{{$labels.instance}}: CPU usage is above 75% (current value is: {{ $value }})"
+
+  mem-usage.rules: |
+    groups:
+    - name: NodeMemoryUsage
+      rules:
+      - alert: NodeSwapUsage
+        expr: (((node_memory_SwapTotal-node_memory_SwapFree)/node_memory_SwapTotal)*100) > 75
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{$labels.instance}}: Swap usage detected"
+          description: "{{$labels.instance}}: Swap usage usage is above 75% (current value is: {{ $value }})"
+      - alert: NodeMemoryUsage
+        expr: (((node_memory_MemTotal-node_memory_MemFree-node_memory_Cached)/(node_memory_MemTotal)*100)) > 75
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{$labels.instance}}: High memory usage detected"
+          description: "{{$labels.instance}}: Memory usage is above 75% (current value is: {{ $value }})"
+
+  instance-availability.rules: |
+    groups:
+    - name: InstanceDown
+      rules:
+      - alert: InstanceDown
+        expr: up == 0
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "Instance {{ $labels.instance }} down"
+          description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 2 minute."
+
+  low-disk-space.rules: |
+    groups:
+    - name: NodeLowRootDisk
+      rules:
+      - alert: NodeLowRootDisk
+        expr: (container_fs_usage_bytes{device="/dev/mapper/rootvg-rootlv"} / container_fs_limit_bytes{device="/dev/mapper/rootvg-rootlv"}) * 100 > 75
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{$labels.instance}}: Low root disk space"
+          description: "{{$labels.instance}}: Root disk usage is above 75% (current value is: {{ $value }})"
+      - alert: NodeLowVarDisk
+        expr: (container_fs_usage_bytes{device="/dev/mapper/rootvg-varlv"} / container_fs_limit_bytes{device="/dev/mapper/rootvg-varlv"}) * 100 > 75
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{$labels.instance}}: Low var disk space"
+          description: "{{$labels.instance}}: Var disk usage is above 75% (current value is: {{ $value }})"
+      - alert: NodeLowTmpDisk
+        expr: (container_fs_usage_bytes{device="/dev/mapper/rootvg-tmplv"} / container_fs_limit_bytes{device="/dev/mapper/rootvg-tmplv"}) * 100 > 75
+        for: 2m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{$labels.instance}}: Low tmp disk space"
+          description: "{{$labels.instance}}: Tmp disk usage is above 75% (current value is: {{ $value }})"
+
+  
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: prometheus-rules
+  namespace: monitoring

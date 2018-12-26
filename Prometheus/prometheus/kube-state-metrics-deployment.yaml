@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: kube-state-metrics
+  namespace: monitoring
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: kube-state-metrics
+    spec:
+      serviceAccountName: kube-state-metrics
+      containers:
+      - name: kube-state-metrics
+        image: googlecontainer/kube-state-metrics:v0.5.0
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: sys-time
+          mountPath: /etc/localtime
+      volumes:
+        - name: sys-time
+          hostPath:
+            path: /etc/localtime

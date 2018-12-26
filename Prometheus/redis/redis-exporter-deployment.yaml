@@ -1,0 +1,27 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: redis-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: redis-exporter
+    spec:
+      serviceAccountName: redis-exporter
+      containers:
+      - name: redis-exporter
+        image: registry.cn-hangzhou.aliyuncs.com/nevermore/redis-exporter:v1
+        ports:
+        - containerPort: 9121
+        command: ["/bin/redis_exporter"]
+        args: ["-redis.addr", "svc-redis-cluster-np.default:6379"]  #修改成自己的redis集群的配置
+        volumeMounts:
+        - name: sys-time
+          mountPath: /etc/localtime
+      volumes:
+        - name: sys-time
+          hostPath:
+            path: /etc/localtime

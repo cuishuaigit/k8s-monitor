@@ -1,0 +1,34 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rabbitmq-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rabbitmq-exporter
+    spec:
+      serviceAccountName: rabbitmq-exporter
+      containers:
+      - name: rabbitmq-exporter
+        image: registry.cn-hangzhou.aliyuncs.com/nevermore/rabbitmq-expoter:v1
+        ports:
+        - containerPort: 9090
+        env:
+          - name: RABBIT_URL
+            value: "http://rabbitmq-svc.default:15672"  #修改成rabbitmq地址
+          - name: RABBIT_USER
+            value: "guest"                                #修改用户名
+          - name: RABBIT_PASSWORD
+            value: "guest"                                #修改密码
+          - name: PUBLISH_PORT
+            value: "9090"                               #端口号9090
+        volumeMounts:
+        - name: sys-time
+          mountPath: /etc/localtime
+      volumes:
+        - name: sys-time
+          hostPath:
+            path: /etc/localtime

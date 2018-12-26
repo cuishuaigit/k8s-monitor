@@ -1,0 +1,8 @@
+apiVersion: v1
+data:
+  source: nevermore:nevermore@(maxscale-s.default:3306)/
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: mysql-exporter
+  namespace: monitoring

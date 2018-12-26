@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-exporter
+  namespace: monitoring
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-exporter
+    spec:
+      serviceAccountName: mysql-exporter
+      containers:
+      - name: mysql-exporter
+        image: registry.cn-hangzhou.aliyuncs.com/nevermore/mysql-exporter:v1
+        ports:
+        - containerPort: 9104
+        env:
+        - name: DATA_SOURCE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: mysql-exporter
+              key: source
+        volumeMounts:
+        - name: sys-time
+          mountPath: /etc/localtime
+      volumes:
+        - name: sys-time
+          hostPath:
+            path: /etc/localtime
