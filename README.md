@@ -66,6 +66,7 @@ kubectl create -f prometheus-core-configmap.yaml
 kubectl create -f prometheus-core-deployment.yaml
 kubectl create -f prometheus-core-service.yaml
 kubectl create -f prometheus-rules-configmap.yaml
+6.修改core-configmap里的etcd地址
 ```
 
 #### 3.安装Grafana
