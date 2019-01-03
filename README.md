@@ -33,7 +33,7 @@ sudo /etc/init.d/rpcbind restart
 sudo /etc/init.d/nfs-kernel-server restart 
 sudo systemctl enable rpcbind nfs-kernel-server 
 
-客户端挂在使用
+客户端挂载使用
 sudo apt-get install -y nfs-common
 mount -t nfs ku13-1:/data/opv  /data/opv -o proto=tcp -o nolock
 为了方便使用将上面的mount命令直接放到.bashrc里面 
