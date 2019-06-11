@@ -41,7 +41,7 @@ mount -t nfs ku13-1:/data/opv  /data/opv -o proto=tcp -o nolock
 kubectl creaet -f nfs/monitoring-namepsace.yaml 
 3.为nfs创建rbac 
 kubectl create -f nfs/rbac.yaml 
-4.创建deployment
+4.创建deployment,将文件里的nfs地址换成自己的
 kubectl create -f nfs/nfs-deployment.yaml 
 5.创建storageclass
 kubectl create -f nfs/storageClass.yaml 
