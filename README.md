@@ -46,6 +46,11 @@ kubectl create -f nfs/nfs-deployment.yaml
 5.创建storageclass
 kubectl create -f nfs/storageClass.yaml 
 ```
+#### 新加了ceph rbd 持久化存储
+
+```
+具体部署使用方式参考rook-ceph目录下的README.md
+```
 
 #### 2.安装Prometheus 
 
