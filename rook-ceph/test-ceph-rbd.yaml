@@ -1,0 +1,32 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: ceph-rdb-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: rook-ceph-block
+  resources:
+    requests:
+      storage: 20Mi
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod1
+  labels:
+    name: nginx-pod1
+spec:
+  containers:
+  - name: nginx-pod1
+    image: nginx:alpine
+    ports:
+    - name: web
+      containerPort: 80
+    volumeMounts:
+    - name: ceph-rdb
+      mountPath: /usr/share/nginx/html
+  volumes:
+  - name: ceph-rdb
+    persistentVolumeClaim:
+      claimName: ceph-rdb-claim
