@@ -141,6 +141,8 @@ data:
           target_label: kubernetes_pod_name
 
       - job_name: 'etcd'
+        scheme: https
+        insecure_skip_verify: true
         static_configs:
         - targets: ['10.42.68.77:2379', '10.42.73.110:2379'] #替换成etcd地址
 
