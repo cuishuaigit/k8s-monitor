@@ -27,7 +27,7 @@ k8s-1.13.2
 sudo apt-get install -y nfs-kernel-server
 sudo apt-get install -y nfs-common 
 sudo vi /etc/exports 
-/data/opv * (rw,sync,no_root_squash,no_subtree_check)
+/data/opv *(rw,sync,no_root_squash,no_subtree_check)
 注意将*换成自己的ip段，纯内网的话也可以用*，代替任意
 sudo /etc/init.d/rpcbind restart 
 sudo /etc/init.d/nfs-kernel-server restart 
