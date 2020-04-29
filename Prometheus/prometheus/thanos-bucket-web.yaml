@@ -1,0 +1,36 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: thanos-bucket-web
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus-server
+    spec:
+      containers:
+        - name: thanos-query
+          image: thanosio/thanos:master-2020-04-14-5dbfb5a3
+          args:
+          - bucket 
+          - web
+          - --http-address=0.0.0.0:19194
+          - --objstore.config-file=/bos.yaml
+          ports:
+          - containerPort: 19194
+            name: bucker-web-http
+          volumeMounts:
+            - name: bucket-config
+              mountPath: /bos.yaml
+              readOnly: false
+              subPath: bos.yaml
+      volumes:
+        - name: bucket-config
+          configMap:
+            defaultMode: 511
+            name: bucket-conf
+            items:
+            - key: bos.yaml
+              path: bos.yaml

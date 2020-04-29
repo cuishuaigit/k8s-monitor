@@ -18,10 +18,16 @@ spec:
       serviceAccountName: prometheus-k8s
       containers:
       - name: prometheus
-        image: prom/prometheus:v2.2.1
+        image: prom/prometheus:v2.17.2
         args:
-          - '--config.file=/etc/prometheus/prometheus.yaml'
-          - '--storage.tsdb.retention=7d'
+          - "--config.file=/etc/prometheus-shared/prometheus.yml"
+          - "--storage.tsdb.path=/prometheus/"
+          - "--log.level=info"
+          - "--storage.tsdb.max-block-duration=2h"
+          - "--storage.tsdb.min-block-duration=2h"
+          - "--storage.tsdb.wal-compression"
+          - "--storage.tsdb.retention.time=2h"
+          - "--web.enable-lifecycle
         ports:
         - name: webui
           containerPort: 9090
@@ -41,16 +47,81 @@ spec:
           mountPath: /prometheus/data
         - name: sys-time
           mountPath: /etc/localtime
+      - name: thanos-sidecar
+        image: thanosio/thanos:master-2020-04-14-5dbfb5a3
+        args:
+          - sidecar
+          - --log.level=debug
+          - --tsdb.path=/prometheus/
+          - --prometheus.url=http://127.0.0.1:9090
+          #- '--objstore.config={type: GCS, config: {bucket: BUCKET_REPLACE_ME}}'
+          - --objstore.config-file=/bos.yaml
+          - --reloader.config-file=/etc/prometheus/prometheus.yml
+          - --reloader.config-envsubst-file=/etc/prometheus-shared/prometheus.yml
+          # - --reloader.rule-dir=/etc/prometheus-config/rules
+        ports:
+          - containerPort: 10902
+            name: sidecar-http
+          - containerPort: 10901
+            name: grpc
+          - containerPort: 10900
+            name: cluster
+        volumeMounts:
+          - name: prometheus-config-volume
+            mountPath: /etc/prometheus/
+            readOnly: false
+          - name: prometheus-storage-volume
+            mountPath: /prometheus/
+          - mountPath: /etc/prometheus-shared/
+            name: prometheus-config-shared
+            readOnly: false
+          - name: bucket-config
+            mountPath: /bos.yaml
+            readOnly: false
+            subPath: bos.yaml
+          - name: sys-time
+            mountPath: /etc/localtime
+      - name: thanos-store
+        image: thanosio/thanos:master-2020-04-14-5dbfb5a3
+        args:
+          - store
+          - --http-address=0.0.0.0:19191
+          - --grpc-address=0.0.0.0:19090
+          - --objstore.config-file=/bos.yaml
+        ports:
+          - containerPort: 19191
+            name: store-http
+          - containerPort: 19090
+            name: store-grpc
+        volumeMounts:
+          - name: bucket-config
+            mountPath: /bos.yaml
+            readOnly: false
+            subPath: bos.yaml 
+          - name: sys-time
+            mountPath: /etc/localtime
       volumes:
-      - name: config-volume
+      - name: prometheus-config-volume
         configMap:
-          name: prometheus-core
+          defaultMode: 511
+          name: prom-conf
+          items:
+          - key: prometheus.yml
+            path: prometheus.yml
+      - name: bucket-config
+        configMap:
+          defaultMode: 511
+          name: bucket-conf
+          items:
+          - key: bos.yaml
+            path: bos.yaml
+      - emptyDir: {}
+        name: prometheus-config-shared
+      - name: prometheus-storage-volume
+        emptyDir: {} 
       - name: rules-volume
         configMap:
           name: prometheus-rules
-      - name: prometheus-data
-        persistentVolumeClaim:
-          claimName: prometheus-pvc 
       - name: sys-time
         hostPath:
           path: /etc/localtime

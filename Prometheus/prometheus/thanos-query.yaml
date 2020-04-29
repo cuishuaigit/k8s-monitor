@@ -1,0 +1,37 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: thanos-query
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: thanos-query
+    spec:
+      containers:
+        - name: thanos-query
+          image: thanosio/thanos:master-2020-04-14-5dbfb5a3
+          args:
+          - query
+          - --http-address=0.0.0.0:8090
+          - --store=prometheus-service.monitoring.svc.cluster.local:10901
+          - --store=prometheus-service.monitoring.svc.cluster.local:19090
+          ports:
+          - containerPort: 8090
+            name: query-http
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: thanos-query
+spec:
+  ports:
+  - port: 8090
+    nodePort: 32143
+    protocol: TCP
+    name: query
+  selector:
+    app: thanos-query
+  type: NodePort
