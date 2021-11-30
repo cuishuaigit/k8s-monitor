@@ -38,7 +38,7 @@ sudo apt-get install -y nfs-common
 mount -t nfs ku13-1:/data/opv  /data/opv -o proto=tcp -o nolock
 为了方便使用将上面的mount命令直接放到.bashrc里面 
 2.创建namesapce
-kubectl creaet -f nfs/monitoring-namepsace.yaml 
+kubectl create -f nfs/monitoring-namepsace.yaml 
 3.为nfs创建rbac 
 kubectl create -f nfs/rbac.yaml 
 4.创建deployment,将文件里的nfs地址换成自己的
